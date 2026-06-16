@@ -1,0 +1,558 @@
+﻿MK4 Planning
+
+
+Goal: Overhaul UI with the following goals
+1. Improve system clearity, reduce unneeded information at a given time
+2. More information density in smaller space, without loss of clarity
+3. More engaging and interactive UI
+
+
+
+
+
+
+
+
+Tab1 (Preparation)
+
+
+Splash screen upon user reaching the URL for the first time, This is where we will put the legal stuff google Adsense will require…  I want to put a youtube video here giving a short app tutorial. I will want the new UI in place to make the video so this will be one of the last things we implement. 
+
+
+We need to set up the Setting map to show six icons that represent the six possible missions to choose.  When the mouse hovers over the icon it displays The name of the mission with the short description.  When the user clicks on the mission Icon that icon becomes highlighted and selected. World map should be larger and cover about the top 50% of the screen.
+
+
+The current Choose a Mission Adventure Selection cell should be removed as we are moving that functionality to the setting map. 
+
+
+We need to combine Player Selection and Class selection into one cell.  When selecting a desired player there portrait should grow by 20% highlighted and slowly pulsing.  Once a player is selected the dropdown menu for there class should be right under there portrait, and once a class is selected from the drop down menu then there player portrait updates to there class portrait. Layout for player selection should be horizontal not vertical, so rather than showing the players in two columns and four rows it should be four columns and two rows.  Player and class selection cell should cover about the lower 50% of the screen. 
+
+
+Tab2 (Adventure)
+
+
+New Layout: 
+
+
+Page Header: Let's hide the Session ID, the state and the round in the backend.  I do like the music so let's keep the Adventure title up here along with the Music controller. (it's still way too loud by the way Codex, we have tried several times to turn it down and it hasn't worked) 
+Top Center Cell starts as the world map, however this image will change with every location:
+This Cell will be named the Location Cell, it will occupy 50% of the screen
+Adventure log from the players flattened and stretched across the full screen occupies about 20% of the total screen space
+Game master Pmrpting , this cell’s size and shape is about right and it should occupy about 20% of the screen. 
+
+
+
+
+Location Cell (top Center cell, about 50% of the screen)
+
+
+Three locations visible by default 
+
+
+-World map (we will make this map more interactive, will need a location indicator)
+-Adventure map (these are already made and in use, but will need interactive modifications)
+-Encounter Location (Each of the six locations for each of the six adventures, we should also add a tavern starting location too for a total 65 location images)
+-Cool fade out and in animation when rotating between the three location cell views. 
+
+
+We are going to build a simple combat animation system inspired by Darkest Dungeon One.  
+-Players will have different class avatars with simple animations that display on each Encounter location 
+
+
+-player class avatars will have 4 simple animations for Ideal, Attack, Spell, Skill. 
+-8 classes 2 versions (male/female) total of 16 avatars, total of 64 animations
+-We have 21 monsters in the game each one will need an avatar
+-Monsters will have two animations, ideal and Attack, totaling 42 animations.  
+
+
+-Player avatars are arranged from center moving left with descending initiative order
+-Monster Avatars are arranged from center moving right with descending initiative order
+Player Avatars shift and rotate with their turns, so the current player agent will always be center left, then move farther left as the other agents take their turns. 
+Because Monsters all operate on one initiative (controlled by the opposition agent) The monsters simply spawn in center right location moving further right in ascending number (monster one through four) 
+
+
+-HP damage should be displayed on the Location Cell along with the avatars
+-Display current HP values under each avatar? 
+-Animations should be triggered on the tool call (we get these before the LLM finishes its output), maybe aim for them to be 2 sec, this would help hide lag time from the LLM API calls…. 
+
+
+
+
+UI polish note: The highlighted and selected agent should not rotate until the entire reply message from its corresponding LLM is received into the UI. Currently the Selected agent rotates once you press “Send Prompt” from the user perspective this makes it look like the next agent in the prompting queue is talking rather than the current one. 
+
+
+Animation Notes from Codex: 
+
+
+
+
+1. If using AI video output, aim for:
+   * short clips
+   * transparent background if possible
+   * otherwise a very clean keyed background you can remove
+   * loop-friendly idle clips
+   * compact web-ready exports
+
+
+
+
+For implementation, I would likely want:
+* webm if transparency is supported and quality is good
+In the app, we’d do something like:
+   * show idle clip by default
+   * temporarily swap to attack/spell/skill clip when that action happens
+   * then return to idle
+Current Scene, the Screen Frame cell, we are removing this cell from the UI, I think we are also going to remove the generate image function from this build of the app, it cost too many tokens, took too long and would tend to break other parts of the app. 
+
+
+Game Master Promping: (we are largely going to try to squeeze more information in this cell)
+-New functionality, when the mouse hovers over an agent it should show the Player Class portrait, their current HP and inventory.
+-The displayed player class portrait should also fill with a red screen (like a red transparency) from bottom to top, the percentage of the portrait that is screened red would correlate with how much HP that player has lost.  At zero HP the entire portrait is red screened.
+-When a player agent is reduced to zero HP that agent button will remain on the screen but it should become greyed out and unselectable, and un-promptable. 
+-Players may be healed by healing spells or the long rest button, agents once restored to a non-zero HP value are returned to initiative (if in combat) and become selectable and promptable. 
+-If all player agents are reduced to zero HP the User is prompted with a, “Game Over” pop up, One button is available to press. “Start Over”  Pressing it refreshes the page and starts a new session. 
+
+
+Remove the Generate Image button (we are removing this feature for now)
+Remove the Roll For initiative button, this will be replaced by the Tigger Encounter Button
+
+
+-New Functionality, Trigger Encounter Button. This button brings up a pop up, in the UI
+-On this pop up the User selects the monsters and number of them they wish to spawn into the encounter. 
+-Once selected the encounter is started just as our current encounter logic started by pressing the Spawn Monster button from the previous build. 
+
+
+Party Overview, Player status, this cell is going to be removed, and the information that was displayed in it will have to be moved into the Game Master Prompting Cell.
+
+
+UI polish note: The highlighted and selected agent should not rotate until the entire reply message from its corresponding LLM is received into the UI. Currently the Selected agent rotates once you press “Send Prompt” from the user perspective this makes it look like the next agent in the prompting queue is talking rather than the current one. 
+
+
+Cell, Game Master Screen (this cell is to be removed as well)
+-adventure map and locations and the travel function will be moved to location cell
+-Adventure Completion Objectives will be moved to the location cell in the world map
+-the monster spawning function will be moved to the Trigger Encounter button in the Game Master Prompting cell.
+
+
+Tab3 (Wrap Up now to become Feedback)
+I think we are going to largely deprecate this tab.  Adventure summary was an artifact from when this app was going to help writers write their own book chapters from the games they ran. When we remove this be careful not to remove the structured memory that used to be on this tab (I am not sure if you have completely moved that to the back end yet) 
+
+
+Currently I am planning on leaving a space here for users to provide me feedback, but I haven’t decided what questions to ask and how to format my feedback request. 
+________________
+
+
+
+
+Notes to Codex on backend Logging. For this app I feel like the key engagement loop is user interaction with the player agents. So to gage how successful this app is I want at least two metrics.  The first metric is API calls to Open AI.  I currently have this key capped at $20 per month.  If I could max out that usage it would be a strong signal that I have something here.  To back that up I would like the back end to keep logs on how many token calls are being made per session, it would be nice if we could time stamp the API calls to, that way we know how long a user was on the page and how many Agent interactions they had in that time. 
+
+
+We need two UI setups, the above set up is constructed thinking of PC, however we need to give real thought at this point as to how to set up the UI to optimize for phones….
+
+
+
+
+________________
+
+
+Phase 1 — UI Simplification (STRUCTURE ONLY)
+👉 No animations. No polish. No fancy behavior.
+Focus:
+* Remove unused cells
+* Rename everything to user-facing language
+* Reorganize Tab1, Tab2, Tab3
+* Move systems into correct places (maps, encounter button, etc.)
+From your doc:
+* remove “Cell1/Cell2” language
+* combine player + class selection
+* remove adventure selection cell (move to map)
+* remove GM screen + party overview cells
+Goal:
+A user can open the app and understand what each section is for
+________________
+
+
+Phase 2 — Interaction Clarity (FLOW FIXES)
+👉 Now we fix how users interact
+Focus:
+* hover states (player info, mission info)
+* selection feedback (highlighting, pulsing)
+* encounter popup flow
+* correct agent rotation timing (your polish note)
+From your doc:
+* hover → HP + inventory
+* selection animation (20% growth + pulse)
+* trigger encounter modal
+* fix agent speaking confusion
+Goal:
+A new user can successfully:
+* pick a mission
+* pick players/classes
+* start an encounter
+without confusion
+________________
+
+
+Phase 3 — Layout & Density Optimization
+👉 Now we shape the screen
+Focus:
+   * resizing elements (50% map, 20% log, etc.)
+   * flattening log across screen
+   * consolidating info into GM prompt area
+From your doc:
+   * location cell dominance
+   * log compression
+   * removal of redundant panels
+Goal:
+Everything important is visible without searching
+________________
+
+
+Phase 4 — Core Visual Feedback (LOW-RISK POLISH)
+👉 Still no animations yet
+Focus:
+   * HP visual indicators (red overlay)
+   * disabled/greyed agents at 0 HP
+   * cleaner highlighting
+   * state visibility
+From your doc:
+   * HP red fill on portraits
+   * dead/unselectable states
+   * hover detail clarity
+Goal:
+The user can read the state instantly
+
+
+________________
+
+
+Phase 5 — Location Cell System (MAP + VIEW SWITCHING)
+👉 Now unify your maps
+Focus:
+   * world map
+   * adventure map
+   * encounter map
+   * transitions between them
+From your doc:
+   * rotating views
+   * fade transitions
+   * location indicators
+Goal:
+User always knows “where we are”
+________________
+
+
+Phase 6 — Animation Framework (Static Image Only)
+Focus on proving that the animation system can exist in the app without destabilizing the UI.
+Scope:
+   * load and render player and monster animated assets in the Location Cell
+   * support idle animation loops only at first, Now Stadic images ONLY
+   * establish stable positioning for player and monster avatars
+   * verify that animated assets swap in cleanly over the location background
+   * add support for one triggered action state only for testing (death)
+   * after triggered action finishes, return to idle automatically
+   * confirm animation timing can be driven from backend/tool events without breaking turn flow
+Recommended first triggered state:
+   * Attack (no this will be changed to knocked out, as we need to communicate the downed state)
+Why:
+   * simplest to understand
+   * easiest to test against combat events
+   * highest visible payoff
+Goal:
+Prove the engine can display animated actors, hold idle loops, and swap into one temporary action animation reliably.
+Instructions to Codex
+Currently on Tab2 Cell1 (the location Cell) we display the selected player agent in the lower left.  I would like to make this more visabley a stack of cards (composed of the player agents)  I would like the stack arranged in the current rotation order, so the stack is reordered when the user jumps prompts the current agent and they rotate, or when the user selects an other agent out of order, then the stack should reorder.  Also when combat starts and initiative is rolled the stack should reorder as well.  When the Opposition agent spawns I would like his monster icon to always be visible in combat, and located in the same Cell (the location Cell, on the lower right opposite of the player stack).  So even though the opposition agent is in the initiative rotation it is always on the right while the players are on the left.  Furthermore the stack of player cards should be stacked such that each card is visible, let's try displaying each lower card only 10% of the left and bottom sides of the cards, such that it looks like the stack has been stacked somewhat slanted. 
+
+
+
+
+Next let’s modify a small thing, if the user presses “Trigger Encounter” (from tab two cell two) and they select a monster and initiative is rolled the Location Cell should always immediately shift to the Encounter Location (were not locking it there I just want to streamline things a bit). 
+
+
+Next, if the user chooses to press “Trigger Encounter” and chooses to spawn more than one monster, I no longer want only one image displayed (we had it set to the one with the most HP) Instead I would like the images of all selected monsters displayed (to a maximum of four) Ordered in the location Cell right justified, but the right most should be monster 4 then moving left monster 3 monster 2 monster 1.  If fewer than 4 monsters are spawned the group stays right justified in the cell, and if only one monster is spawned the UI looks the same as we have it now. 
+
+
+Codex I think I want to change how the animations work for mutable targets. At first I was thinking we would play one animation after another, but ideally at some point we need to be able to animat AOEs.  Also the Opposition agent needs to be able to activate all of there monsters and attack different targets if needed.  So let's have A different animation for batch attacks. When the Oppostation agent has more than one monster when it attacks each of its monsters should move forward to the center right. They should be stacked vertically rather than horizontally at this point.  Each monster’s target (player agent) should be pulled to the center left and also stacked vertically…. Ideally each player card should be across from the monster attacking it, however if more than one monster is attacking the same player agent then the player agent card should just be aligned with the monster with the lowest number.   This way we keep multi-attack animations to the same 5sec as single attack animations. 
+
+
+
+
+
+
+Success looks like:
+   * idle loops play correctly
+   * one action trigger works
+   * avatars return to idle after action
+   * no desync with turn order
+   * no UI instability or major performance hit
+________________
+
+
+Phase 7 — Animation Expansion & Combat Presentation
+Once the framework is proven, expand the expressive range.
+Scope:
+   * add remaining player action states:
+   * Spell
+   * Skill
+   * add monster attack state
+   * refine avatar placement and motion flow during initiative changes
+   * add HP damage feedback in the Location Cell
+   * improve transitions so action swaps feel intentional rather than abrupt
+   * tune timing so animations enhance pacing and help hide API lag
+   * expand asset coverage across classes and monsters once system behavior is stable
+Goal:
+Turn animation from a technical proof into a readable combat presentation layer.
+Success looks like:
+   * all key action types visually distinct
+   * players and monsters feel readable in combat
+   * damage feedback is easy to notice
+   * animation improves engagement without obscuring state
+________________
+
+
+
+
+New Phase 7 - Implement backend supported Mission Objectives
+
+
+We need a win-condition for each adventure.  Originally I thought I would leave that up to the player as the GM, but we are building better support for the user and with no clear objective or just an objective the user can freely hand out to the party we risk the game feeling meaningless. 
+
+
+Each Adventure will have a unique objective that is tracked on the backend, and communicated to the user and the agents via prompt injunction.  So each time progress is made toward the tracked objective an update should be made to the backend formal context.  In the front end adventure log (tab2) we should also add a brief note for when progress has been made on each adventure’s objective. On the back end we need to communicate what the mission is to the player agents but we want to be careful not to communicate information they shouldn’t know, such for example the location of the Bandit Caption or the location of the WItch King Crown. 
+
+
+Obviously we only want the objective tagged for the current active and user selected adventure. Below is a list of each adventure and the objective I would like to track for each of them.
+
+
+Note, we are going to have to make some changes to how a few of the current game systems work to facilitate these objectives. 
+
+
+Adventures 
+
+
+Memories of the Witch King
+        Tracked Objective: Recover the WitchKing Crown
+        Specific Item dropped by mob at a specific location
+        We need to add a mechanic for items to be dropped and picked up upon death of monsters.  For this objective we will build a single test trigger.  When monsters are spawned in The Fractured Throne Room, and killed at that location, they will drop the Witch King Crown.  This only happens once, and meets the mission's objective. The player dealing the final killing blow on the last monster within the room is awarded the loot drop. (if the players flee this encounter they are not awarded the Crown) 
+
+
+Blood at Midnight
+        Tracked Objective: Kill the Warchief! 
+        Unique mob that only spawns at one location (location trigger event)
+
+
+For this mission objective when the players travel to The War Leader’s Tent We need to trigger an auto encounter against a single Bandit Captain, and his pet Giant Boar. If the players survive the encounter and defeat the two monsters in it then they satisfy the mission objective. 
+
+
+
+
+To follow the King’s Way
+        Tracked Objective: Escort the wagon train to Glockstead
+        Controlled Travel across the map
+
+
+As this mission is an escort we need to control which locations the players are allowed to travel to and when. At the start of the mission the player should only be allowed to travel to location1 
+From location 1 the player can only travel to location 2
+From location 2 the player can only travel to location 3
+From location 3 the player can only travel to location 4
+From location 4 the player can only travel to location 5
+From location 5 the player can only travel to location 6
+Arrival at location 6 is this missions victory condition. 
+
+
+The Dead Remember
+        Tracked Objective: Recover the lost relic from The Burial Vault
+        Specific Item hidden (The Befouled Urn) in The Burial Vault
+
+
+To find this item I would like the players to use an out of combat skill check. We set up the tool call system to be able to make skill check rolls, I would like the back end to read when a player has rolled a successful Search (perception or investigation) check, while the party is currently located within The Burial Vault.  A successful check at The Burial Vault will award the searching player, The Befouled Urn, and satisfy the Objective for this mission. 
+
+
+
+
+
+
+Nightmares of the Thawed
+        Tracked Objective: Kill 10 Undead
+        Simple kill order quest
+All the monsters on this mission are undead, so we need to just implement a simple kill tracker for this quest. Each time a new monster is killed update the tracker on the map, put a note in the of the current kill count in the adventure log and on the backend context update the player agents. 
+
+
+
+
+
+
+Collecting what’s Owed
+Tracked Objective: Collect 400gp
+Simple collection quest
+
+
+For this mission I would once more like us to drop items from completed monster encounters. This time each encounter upon defeating the monsters (no items awarded for fleeing battle), award the player agent dealing the final killing blow on the last monster a random gold value between 50 to 125 gold pieces.  Track total awarded gold pisces on the world map as well as giving adventure log updates and updating the backend context for the player agents.  Upon reaching 400 gold pieces the mission objective is complete. 
+
+
+
+
+
+
+
+
+
+
+
+
+Currently we are displaying the mission objectives on the lower right corner of the world map.  I would like to change that to show the current mission progress, objectives should update dynamically throughout the adventure.  Once the Mission objective is met the UI should give an option button to return to Moosehearth just above the met objectives. 
+
+
+We need to remember to update the mission objectives that are fed player agents so they know what the new objectives are.
+
+
+I would like the player agents to be updated every time an objective is updated, but I think that should be backend updates to the shared context only, no need to announce it to the user. 
+
+
+
+
+________________
+
+
+
+
+Phase 8 — Onboarding & First-Time Experience
+👉 Only after everything else works
+Focus:
+   * splash screen
+   * tutorial video
+   * first-time flow guidance
+From your doc:
+   * splash screen w/ YouTube
+   * legal placement
+Goal:
+A new user succeeds without explanation
+________________
+
+
+Phase 9 — Mobile UI Adaptation
+👉 Treat this as its own project
+Focus:
+   * layout restructuring
+   * touch interactions
+   * vertical flow
+From your doc:
+   * explicit need for mobile version
+Goal:
+Not broken on phones (not “identical to PC”)
+________________
+
+
+Codex thoughts on reading the plan:
+   1. The animation scope is the biggest risk in the whole plan.
+64 player animations plus 42 monster animations is not just a polish task, it’s an asset pipeline, performance, and state-sync project. If those assets arrive late, are too large, or don’t loop cleanly, Phase 6 can swallow the whole build. I strongly agree with your own phase split here: keep animation completely isolated and make sure gameplay works without it.
+   2. The Location Cell is trying to carry too many jobs at once.
+Right now it wants to be:
+      * world map
+      * adventure map
+      * encounter map
+      * avatar combat stage
+      * HP display
+      * objective display
+      * location indicator
+That can work, but only if you define a clear priority system for what is visible when. Otherwise it risks becoming visually crowded and less clear than MK3. I’d recommend explicitly deciding:
+      * what is shown during exploration
+      * what is shown during combat
+      * what is hidden or collapsed in each mode
+         3. “More information density in smaller space” can easily conflict with “reduce unneeded information.”
+Those are both good goals, but they pull in opposite directions if you’re not careful. The plan needs one rule for deciding what earns permanent screen space versus hover-only or on-demand space. Otherwise MK4 could become prettier but still cognitively crowded.
+         4. Hover-based interactions will not translate to phones.
+You already flagged mobile as separate, which is good, but several core interactions in the PC plan depend on hover:
+            * mission info on map icons
+            * player info on agent hover
+            * HP/inventory preview
+Those need a mobile-safe equivalent from the beginning, even if mobile is Phase 8. Otherwise you’ll design core flows around an interaction model phones do not have.
+               5. Replacing Roll for Initiative with Trigger Encounter is good UX, but it means encounter setup needs very clear rules.
+That popup becomes important system infrastructure. It should be very clear:
+                  * which monsters are available
+                  * how many can be spawned
+                  * whether initiative auto-rolls immediately
+                  * whether the encounter can be edited after start
+If that popup is vague, it becomes a new confusion point.
+                     6. Moving Party Overview into Game Master Prompting is efficient, but it risks overloading the most important control area.
+This is a smart consolidation idea, but GM Prompting is already your operational core. Be careful not to make it a dense “everything drawer.” It should remain fast to scan and use while prompting.
+                     7. Deprecating Wrap Up is reasonable, but feedback collection needs a very deliberate purpose.
+A vague “feedback space” can become dead UI. If Tab 3 remains, it should answer a specific question like:
+                        * Was the app easy to understand?
+                        * Which part was confusing?
+                        * Did the AI players feel believable?
+                        * Would you use it again?
+Otherwise I’d consider temporarily hiding the tab until you know what it’s for.
+                           8. The logging/engagement metrics goal is good, but “maxing out the API budget” is not a reliable success metric by itself.
+High token use can mean:
+                              * users are deeply engaged
+                              * or the system is inefficient
+                              * or people are getting stuck and retrying
+The per-session timestamped interaction logs are the stronger signal. I’d focus on:
+                              * sessions started
+                              * prompts sent per session
+                              * session duration
+                              * encounters triggered
+                              * chapter completions
+                              * long rests / travel / interaction variety
+Those will tell you more than spend alone.
+What Looks Strong
+                                 * The phased structure is much better than trying to do this all at once.
+                                 * Separating mobile into its own phase is wise.
+                                 * Removing weak features instead of carrying them forward just because they exist is a good product instinct.
+                                 * The “fix structure first, polish later” approach is exactly right.
+                                 * The note about not removing structured memory when deprecating Wrap Up is important and correct.
+My Recommendations
+                                 * Add an explicit “mode model” for the Location Cell:
+                                 * exploration mode
+                                 * combat mode
+                                 * travel mode
+                                 * Add a rule for information hierarchy:
+                                 * always visible
+                                 * visible on selection
+                                 * visible on hover/tap
+                                 * Treat the encounter popup as a real subsystem and define it more concretely.
+                                 * Reduce Phase 6 initial asset ambition if needed:
+                                 * idle first
+                                 * then one action state
+                                 * then expand
+                                 * Decide now whether Tab 3 is:
+                                 * temporary feedback form
+                                 * hidden for now
+                                 * or replaced entirely
+Overall, the MK4 plan is much stronger than “we need a nicer UI.” It has real structure. The main danger is not that it’s incoherent, it’s that the visual ambition, especially around the Location Cell and animation system, could outrun the clarity goal if you don’t keep the hierarchy tight.
+If you want, the next useful step would be for me to help you turn this into a sharper design spec by identifying the 5 or 6 biggest decisions that still need to be nailed down before implementation starts.
+________________
+
+
+
+
+
+
+
+
+                                 1. send GM prompt to backend
+                                 2. backend calls the LLM
+                                 3. LLM returns full text
+                                 4. backend strips markers out of that finished text
+                                 5. backend turns those markers into events like attack_resolved
+                                 6. frontend receives the prompt response and starts the animation
+
+
+
+
+Fuck are we still updating the back end game state from information stripped out of the LLM’s output!!!!!!!!!!!!!
+
+
+NO no no!!!!!!!     The order should be as follows!
+
+
+                                 1. Send GM prompt to the back end
+                                 2. Backend Calls to the LLM
+                                 3. LLM makes toolcall to take its action
+                                 4. Backend rolls dice calculates damage subtracts HP, then reports outcome back to the LLM at the same time it tells the front end what animation to trigger!  Events should be triggered by back end tool calls not read from the LLM’s output! 
+                                 5. Back end receives prompt response
+                                 6. Back end feeds prompt response to front end
+
+
+Do you see any problems with implementing it this way?
